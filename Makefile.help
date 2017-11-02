@@ -1,0 +1,9 @@
+
+Make what? Choose one of:
+
+  make kalk    - local program instruction, produces the executable "kalk"
+  	         in this directory
+  make install - as above and installs into BINDIR as stated in the Makefile
+  make clean   - removes build artifacts
+  make dist    - creates distribution as /tmp/kalk.tar.gz
+

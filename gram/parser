@@ -1,0 +1,239 @@
+%{
+#include <math.h> 
+#include <stdio.h>
+#include <stdlib.h> 
+#include "../kalk.h" 
+#include "../exp/exp.h"
+#define YYSTYPE Exp
+%}
+
+%token	NUM HEXNUM
+	POW SQRT SIN ASIN COS ACOS TAN ATAN FLOOR CEIL
+	EXP LOG LOG10 RINT FMOD
+	VAR
+	HELP QUIT LIST DEC BIN HEX
+        DEG GRAD RAD
+	E PI
+	FACT
+         
+
+%right '='
+
+%left '|'
+
+%left '^'
+
+%left '&'
+
+%left LSHIFT RSHIFT
+
+%left '-' '+'
+
+%left '*' '/' '%'
+
+%right UMINUS '~'
+
+%%
+
+lines:
+	lines
+	line
+    |
+    	line
+;
+
+line:
+	QUIT
+	'\n'			{ return (0); }
+    |
+        DEC
+        '\n'                    { $1.setoutput (Exp::output_dec); }
+    |
+        HEX
+        '\n'                    { $1.setoutput (Exp::output_hex); }
+    |
+        BIN
+        '\n'                    { $1.setoutput (Exp::output_bin); }
+    |
+        DEG
+        '\n'                    { $1.setdgr (Exp::dgr_deg); }
+    |
+        GRAD
+        '\n'                    { $1.setdgr (Exp::dgr_grad); }
+    |
+        RAD
+        '\n'                    { $1.setdgr (Exp::dgr_rad); }
+    |
+	HELP
+	'\n'			{ $1.help (); }
+    |
+	LIST
+	'\n'			{ $1.list (); }
+    |
+	expr
+	'\n'			{
+				    if ($1.isknown ())
+                                    {
+					$1.printvalue ($1.eval ());
+                                        putchar ('\n');
+                                    }
+				    $1.reset ();
+				}
+    |
+    	'\n'
+    |
+    	error
+	'\n'
+    ;
+
+expr:
+	'('
+	expr			
+	')'			{ $$ = $2; }
+    |
+	expr
+	'='
+	expr			{ $$.set (Exp::binop_assign, $1, $3); }
+        
+    |
+        expr 
+        LSHIFT
+        expr                    { $$.set (Exp::binop_lshift, $1, $3); }
+    |
+        expr 
+        RSHIFT
+        expr                    { $$.set (Exp::binop_rshift, $1, $3); }
+    |
+        expr 
+        '&'
+        expr                    { $$.set (Exp::binop_and, $1, $3); }
+    |
+        expr 
+        '|'
+        expr                    { $$.set (Exp::binop_or, $1, $3); }
+    |
+        expr 
+        '^'
+        expr                    { $$.set (Exp::binop_xor, $1, $3); }
+    |
+	expr
+	'+'
+	expr			{ $$.set (Exp::binop_plus, $1, $3); }
+    |
+	expr
+	'-'
+	expr			{ $$.set (Exp::binop_min, $1, $3); }
+    |
+	expr
+	'*'
+	expr			{ $$.set (Exp::binop_mul, $1, $3); }
+    |	
+	expr
+	'/'
+	expr			{ $$.set (Exp::binop_div, $1, $3); }
+    |
+        expr
+        '%'
+        expr                    { $$.set (Exp::fun_fmod, $1, $3); }
+    |
+    	'-'
+	expr %prec UMINUS	{ $$.set (Exp::unop_min, $2); }
+    |
+        '~'
+        expr                    { $$.set (Exp::unop_toggle, $2); }
+    |
+	POW
+	'('
+	expr
+	','
+	expr
+	')'			{ $$.set (Exp::fun_pow, $3, $5); }
+    |
+	FMOD
+	'('
+	expr
+	','
+	expr
+	')'			{ $$.set (Exp::fun_fmod, $3, $5); }
+    |
+	EXP
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_exp, $3); }
+    |
+	RINT
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_rint, $3); }
+    |
+	LOG
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_log, $3); }
+    |	
+	LOG10
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_log10, $3); }
+    |
+	SQRT
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_sqrt, $3); }
+    |
+	SIN 
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_sin, $3); }
+    |
+	ASIN
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_asin, $3); }
+    |
+	COS
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_cos, $3); }
+    |
+	ACOS
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_acos, $3); }
+    |
+	TAN
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_tan, $3); }
+    |
+	ATAN
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_atan, $3); }
+    |
+	FLOOR
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_floor, $3); }
+    |
+	CEIL
+	'('
+	expr
+	')'			{ $$.set (Exp::fun_ceil, $3); }
+    |
+	FACT
+	'('
+	expr
+	')'			{ $$.set(Exp::fun_fact, $3); }
+    |
+    	NUM			{ $$.set (atof (yytext)); }
+    |
+        HEXNUM                  { $$.set ( (double)
+				      strtoll (yytext, NULL, 0) ); }
+    |
+	PI			{ $$.set (M_PI); }
+    |
+	E			{ $$.set (M_E); }
+    |
+	VAR			{ $$.set (yytext); }
+;

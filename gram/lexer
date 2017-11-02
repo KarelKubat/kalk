@@ -1,0 +1,154 @@
+%{
+
+#include "parser.h"
+#include "../getline/gl_getline.h"
+#include <string.h>
+#include <unistd.h>
+
+#ifdef yywrap
+#undef yywrap
+#endif
+
+/* yywrap() must be declared as a plain-C function */
+extern "C" int yywrap(void);
+int yywrap ()
+{
+    return (1);
+}
+
+static int my_input (char *buf, int max)
+{
+    register int
+	res;
+    char
+        *lineread;
+    static char
+	linebuf [255];
+
+    /* if not interactive mode: just do the read */
+    if (! isatty (0))
+    {
+	if ( (res = read (0, buf, max)) < 0 )
+	    res = 0;
+        return (res);
+    }
+    
+    /* get the input via getline. When in windows, use the simple gets. */
+    if (getenv ("WINDIR")) {
+	printf ("%s", "kalk> ");
+	*linebuf = 0;
+	fgets (linebuf, 254, stdin);
+	lineread = linebuf;
+    } else
+	lineread = gl_getline ((char*) "kalk> ");
+
+    /* EOF condition? */
+    if (! lineread || ! *lineread)
+    {
+	*buf = '\0';
+	return (0);
+    }
+
+    /* \n character? */
+    if (*lineread == '\n')
+    {
+	*buf = '\n';
+	return (1);
+    }
+
+    /* otherwise: must be a string */
+    if (strlen (lineread) > max - 1)
+    {
+	puts ("warning [lexer] input buffer overflow");
+	*buf = '\n';
+	return (1);
+    }
+
+    strcpy (buf, lineread);
+    gl_histadd (lineread);
+    return (strlen (buf));
+}
+
+#ifdef YY_INPUT
+#   undef YY_INPUT
+#endif
+
+#define YY_INPUT(buf,res,max)		\
+    res = my_input (buf, max);
+	    
+%}
+
+
+%%
+[0-9]+			|
+[0-9]+[.][0-9]+		|
+[.][0-9]+		|
+[0-9]+e[0-9]+		|
+[0-9]+[.][0-9]+e[0-9]+	|
+[.][0-9]+e[0-9]+			{ return (NUM); }
+
+0x[0-9a-fA-F]+                          { return (HEXNUM); }
+
+[ \t]					;
+
+"<<"                                    { return (LSHIFT); }
+
+">>"                                    { return (RSHIFT); }
+
+exp					{ return (EXP); }
+
+log					{ return (LOG); }
+
+log10					{ return (LOG10); }
+
+rint					{ return (RINT); }
+
+fmod					{ return (FMOD); }
+
+pow					{ return (POW); }
+
+sqrt					{ return (SQRT); }
+
+sin 					{ return (SIN); }
+
+asin 					{ return (ASIN); }
+
+cos 					{ return (COS); }
+
+acos 					{ return (ACOS); }
+
+tan 					{ return (TAN); }
+
+atan 					{ return (ATAN); }
+
+floor					{ return (FLOOR); }
+
+ceil					{ return (CEIL) ;}
+
+fact					{ return (FACT); }
+
+help					{ return (HELP); }
+
+quit					{ return (QUIT); }
+
+list					{ return (LIST); }
+
+dec                                     { return (DEC); }
+
+hex                                     { return (HEX); }
+
+bin                                     { return (BIN); }
+
+deg                                     { return (DEG); }
+
+rad                                     { return (RAD); }
+
+grad                                    { return (GRAD); }
+
+E					{ return (E); }
+
+PI					{ return (PI); }
+
+[A-Za-z_][A-Za-z0-9_]*			{ return (VAR); }
+
+.|\n					{ return (*yytext); }
