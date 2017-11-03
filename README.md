@@ -38,7 +38,7 @@ bin (binary):
 	12 ( (int)12 (long)12 )
 
 kalk also understands variables:
-	
+
 	kalk> a = 100
 	kalk> b = 9
 	kalk> a / b
@@ -93,3 +93,8 @@ To compile and install kalk, simply hit 'make install'. This will
 build a local kalk program and install it into
 `$HOME/bin`. Edit the top level Makefile if you want to install
 to a different directory.
+
+### Modifying kalk: Dependencies
+
+In addition to a C++ compiler, you will need `bison` and `flex` when you
+want to change kalk's grammar by e.g. introducting a new function.
