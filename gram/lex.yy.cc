@@ -8,7 +8,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 35
+#define YY_FLEX_SUBMINOR_VERSION 39
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -46,7 +46,6 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
-typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -54,7 +53,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -84,6 +82,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -141,7 +141,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -167,6 +175,7 @@ extern FILE *yyin, *yyout;
 #define EOB_ACT_LAST_MATCH 2
 
     #define YY_LESS_LINENO(n)
+    #define YY_LINENO_REWIND_TO(ptr)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -353,7 +362,7 @@ static void yy_fatal_error (yyconst char msg[]  );
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	yyleng = (yy_size_t) (yy_cp - yy_bp); \
+	yyleng = (size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
@@ -522,6 +531,8 @@ char *yytext;
 
 #include "parser.h"
 #include "../getline/gl_getline.h"
+#include <setjmp.h>
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -538,12 +549,8 @@ int yywrap ()
 
 static int my_input (char *buf, int max)
 {
-    register int
-	res;
-    char
-        *lineread;
-    static char
-	linebuf [255];
+    register int res;
+    char *lineread;
 
     /* if not interactive mode: just do the read */
     if (! isatty (0))
@@ -552,15 +559,9 @@ static int my_input (char *buf, int max)
 	    res = 0;
         return (res);
     }
-    
-    /* get the input via getline. When in windows, use the simple gets. */
-    if (getenv ("WINDIR")) {
-	printf ("%s", "kalk> ");
-	*linebuf = 0;
-	fgets (linebuf, 254, stdin);
-	lineread = linebuf;
-    } else
-	lineread = gl_getline ((char*) "kalk> ");
+
+    /* Get the input via getline. */
+    lineread = gl_getline ((char*) "kalk> ");
 
     /* EOF condition? */
     if (! lineread || ! *lineread)
@@ -595,8 +596,8 @@ static int my_input (char *buf, int max)
 
 #define YY_INPUT(buf,res,max)		\
     res = my_input (buf, max);
-	    
-#line 600 "lex.yy.c"
+
+#line 601 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -677,7 +678,12 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -685,7 +691,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO fwrite( yytext, yyleng, 1, yyout )
+#define ECHO do { if (fwrite( yytext, yyleng, 1, yyout )) {} } while (0)
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -696,7 +702,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		yy_size_t n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -778,10 +784,6 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 82 "lexer"
-
-#line 784 "lex.yy.c"
-
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -808,6 +810,11 @@ YY_DECL
 		yy_load_buffer_state( );
 		}
 
+	{
+#line 74 "lexer"
+
+#line 817 "lex.yy.c"
+
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -824,7 +831,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -864,192 +871,192 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
-#line 84 "lexer"
+#line 76 "lexer"
 case 2:
-#line 85 "lexer"
+#line 77 "lexer"
 case 3:
-#line 86 "lexer"
+#line 78 "lexer"
 case 4:
-#line 87 "lexer"
+#line 79 "lexer"
 case 5:
-#line 88 "lexer"
+#line 80 "lexer"
 case 6:
 YY_RULE_SETUP
-#line 88 "lexer"
+#line 80 "lexer"
 { return (NUM); }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 90 "lexer"
+#line 82 "lexer"
 { return (HEXNUM); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 92 "lexer"
+#line 84 "lexer"
 ;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 94 "lexer"
+#line 86 "lexer"
 { return (LSHIFT); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 96 "lexer"
+#line 88 "lexer"
 { return (RSHIFT); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 98 "lexer"
+#line 90 "lexer"
 { return (EXP); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 100 "lexer"
+#line 92 "lexer"
 { return (LOG); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 102 "lexer"
+#line 94 "lexer"
 { return (LOG10); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 104 "lexer"
+#line 96 "lexer"
 { return (RINT); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 106 "lexer"
+#line 98 "lexer"
 { return (FMOD); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 108 "lexer"
+#line 100 "lexer"
 { return (POW); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 110 "lexer"
+#line 102 "lexer"
 { return (SQRT); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 112 "lexer"
+#line 104 "lexer"
 { return (SIN); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 114 "lexer"
+#line 106 "lexer"
 { return (ASIN); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 116 "lexer"
+#line 108 "lexer"
 { return (COS); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 118 "lexer"
+#line 110 "lexer"
 { return (ACOS); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 120 "lexer"
+#line 112 "lexer"
 { return (TAN); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 122 "lexer"
+#line 114 "lexer"
 { return (ATAN); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 124 "lexer"
+#line 116 "lexer"
 { return (FLOOR); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 126 "lexer"
+#line 118 "lexer"
 { return (CEIL) ;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 128 "lexer"
+#line 120 "lexer"
 { return (FACT); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 130 "lexer"
+#line 122 "lexer"
 { return (HELP); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 132 "lexer"
+#line 124 "lexer"
 { return (QUIT); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 134 "lexer"
+#line 126 "lexer"
 { return (LIST); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 136 "lexer"
+#line 128 "lexer"
 { return (DEC); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 138 "lexer"
+#line 130 "lexer"
 { return (HEX); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 140 "lexer"
+#line 132 "lexer"
 { return (BIN); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 142 "lexer"
+#line 134 "lexer"
 { return (DEG); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 144 "lexer"
+#line 136 "lexer"
 { return (RAD); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 146 "lexer"
+#line 138 "lexer"
 { return (GRAD); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 148 "lexer"
+#line 140 "lexer"
 { return (E); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 150 "lexer"
+#line 142 "lexer"
 { return (PI); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 152 "lexer"
+#line 144 "lexer"
 { return (VAR); }
 	YY_BREAK
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 154 "lexer"
+#line 146 "lexer"
 { return (*yytext); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 155 "lexer"
+#line 147 "lexer"
 ECHO;
 	YY_BREAK
-#line 1053 "lex.yy.c"
+#line 1060 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1180,6 +1187,7 @@ case YY_STATE_EOF(INITIAL):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
+	} /* end of user's declarations */
 } /* end of yylex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -1242,7 +1250,7 @@ static int yy_get_next_buffer (void)
 			{ /* Not enough room in the buffer - grow it. */
 
 			/* just a shorter name for the current buffer */
-			YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
+			YY_BUFFER_STATE b = YY_CURRENT_BUFFER_LVALUE;
 
 			int yy_c_buf_p_offset =
 				(int) ((yy_c_buf_p) - b->yy_ch_buf);
@@ -1375,7 +1383,7 @@ static int yy_get_next_buffer (void)
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 	yy_is_jam = (yy_current_state == 106);
 
-	return yy_is_jam ? 0 : yy_current_state;
+		return yy_is_jam ? 0 : yy_current_state;
 }
 
     static void yyunput (int c, register char * yy_bp )
@@ -1463,7 +1471,7 @@ static int yy_get_next_buffer (void)
 				case EOB_ACT_END_OF_FILE:
 					{
 					if ( yywrap( ) )
-						return 0;
+						return EOF;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
 						YY_NEW_FILE;
@@ -1599,10 +1607,6 @@ static void yy_load_buffer_state  (void)
 	yyfree((void *) b  );
 }
 
-#ifndef __cplusplus
-extern int isatty (int );
-#endif /* __cplusplus */
-    
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a yyrestart() or at EOF.
@@ -1807,8 +1811,8 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
@@ -1816,7 +1820,8 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len 
 {
 	YY_BUFFER_STATE b;
 	char *buf;
-	yy_size_t n, i;
+	yy_size_t n;
+	yy_size_t i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
@@ -2046,4 +2051,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 155 "lexer"
+#line 146 "lexer"

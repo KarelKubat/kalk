@@ -2,6 +2,8 @@
 
 #include "parser.h"
 #include "../getline/gl_getline.h"
+#include <setjmp.h>
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -18,12 +20,8 @@ int yywrap ()
 
 static int my_input (char *buf, int max)
 {
-    register int
-	res;
-    char
-        *lineread;
-    static char
-	linebuf [255];
+    register int res;
+    char *lineread;
 
     /* if not interactive mode: just do the read */
     if (! isatty (0))
@@ -32,15 +30,9 @@ static int my_input (char *buf, int max)
 	    res = 0;
         return (res);
     }
-    
-    /* get the input via getline. When in windows, use the simple gets. */
-    if (getenv ("WINDIR")) {
-	printf ("%s", "kalk> ");
-	*linebuf = 0;
-	fgets (linebuf, 254, stdin);
-	lineread = linebuf;
-    } else
-	lineread = gl_getline ((char*) "kalk> ");
+
+    /* Get the input via getline. */
+    lineread = gl_getline ((char*) "kalk> ");
 
     /* EOF condition? */
     if (! lineread || ! *lineread)
@@ -75,7 +67,7 @@ static int my_input (char *buf, int max)
 
 #define YY_INPUT(buf,res,max)		\
     res = my_input (buf, max);
-	    
+
 %}
 
 
