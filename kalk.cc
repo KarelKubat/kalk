@@ -1,5 +1,5 @@
 #include "kalk.h"
-#include <stdio.h> 
+#include <stdio.h>
 
 int main ()
 {
@@ -11,7 +11,7 @@ int main ()
 	    "Type `help' to see what you can do.\n"
 	    "\n"
 	    , VER);
-    
+
     register int
 	ret = yyparse ();
 
