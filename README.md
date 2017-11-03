@@ -3,8 +3,9 @@
 ## Introduction
 
 kalk is my small calculator which emulates C's double precision expressions. I
-wrote kalk when I was playing around with LALR-1 grammars and lexical analyzers,
-and it still seems useful; it's in fact my favorite calculator.
+wrote kalk back in 1994 at the Univ. of Groningen (Netherlands) when I was
+playing around with LALR-1 grammars and lexical analyzers, and it still seems
+useful; it's in fact my favorite calculator.
 
 In general, you can use kalk just the way you'd use
 expressions or functions in C. Example (`kalk>` is the prompt):
@@ -89,7 +90,7 @@ To unpack the archive, change-dir to your "sources" directory (e.g.,
 `$HOME/src`) and unpack the archive or clone the repository. It will yield a
 subdirectory `kalk` with all sources therein.
 
-To compile and install kalk, simply hit 'make install'. This will
+To compile and install kalk, simply hit `make install`. This will
 build a local kalk program and install it into
 `$HOME/bin`. Edit the top level Makefile if you want to install
 to a different directory.
