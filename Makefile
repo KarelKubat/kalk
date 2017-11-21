@@ -1,6 +1,6 @@
 # Makefile for kalk
 
-VER = 1.39
+VER = 1.40
 BINDIR = "$$HOME/bin"
 
 foo:

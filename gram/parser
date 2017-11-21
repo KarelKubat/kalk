@@ -7,7 +7,7 @@
 #define YYSTYPE Exp
 %}
 
-%token	NUM HEXNUM
+%token	NUM NUMK NUMM NUMG HEXNUM
 	POW SQRT SIN ASIN COS ACOS TAN ATAN FLOOR CEIL
 	EXP LOG LOG10 RINT FMOD
 	VAR
@@ -227,6 +227,12 @@ expr:
 	')'			{ $$.set(Exp::fun_fact, $3); }
     |
     	NUM			{ $$.set (atof (yytext)); }
+    |
+    	NUMK			{ $$.set (atof (yytext) * 1024); }
+    |
+    	NUMM			{ $$.set (atof (yytext) * 1024 * 1024); }
+    |
+    	NUMG			{ $$.set (atof (yytext) * 1024 * 1024 * 1024); }
     |
         HEXNUM                  { $$.set ( (double)
 				      strtoll (yytext, NULL, 0) ); }

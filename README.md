@@ -37,6 +37,21 @@ bin (binary):
 	kalk> dec
 	kalk> a
 	12 ( (int)12 (long)12 )
+    
+Postfixing a number with `k` multiplies by 1024; postfixing with `m`
+multiplies by 1024*1024; postfixing by `g` multiplies by 1024*1024*1024:
+
+    kalk> a=4k
+    4096 ( (int)4096 (long)4096 )
+    kalk> b=5m
+    5.24288e+06 ( (int)5242880 (long)5242880 )
+    kalk> c=6g
+    6.44245e+09 ( (int)-2147483648 (long)6442450944 )
+    
+For example, 12 Gigs plus 512 Megs is 12.5 Gigs:
+
+    kalk> (12g + 512m) / 1g
+    12.5 ( (int)12 (long)12 )
 
 kalk also understands variables:
 
