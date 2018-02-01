@@ -18,10 +18,28 @@ int yywrap ()
     return (1);
 }
 
+/* Buffer of preloaded instructions. */
+char *preloaded_instructions;
+
 static int my_input (char *buf, int max)
 {
     register int res;
     char *lineread;
+
+    /* If we have preloaded instructions, then paste them into the buffer. */
+    if (preloaded_instructions) {
+        if (strlen(preloaded_instructions) < max) {
+	    strcpy(buf, preloaded_instructions);
+	    res = strlen(preloaded_instructions);
+	    preloaded_instructions = 0;
+	    return res;
+	}
+
+	/* The preload buffer was too big. We make no attempt at feeding it
+	 * in multiple goes, you're just out of luck. */
+	puts("warning [lexer] preload instructions buffer too long, ignored");
+	preloaded_instructions = 0;
+    }	
 
     /* if not interactive mode: just do the read */
     if (! isatty (0))

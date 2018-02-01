@@ -37,7 +37,7 @@ bin (binary):
 	kalk> dec
 	kalk> a
 	12 ( (int)12 (long)12 )
-    
+
 Postfixing a number with `k` multiplies by 1024; postfixing with `m`
 multiplies by 1024*1024; postfixing by `g` multiplies by 1024*1024*1024:
 
@@ -47,7 +47,7 @@ multiplies by 1024*1024; postfixing by `g` multiplies by 1024*1024*1024:
     5.24288e+06 ( (int)5242880 (long)5242880 )
     kalk> c=6g
     6.44245e+09 ( (int)-2147483648 (long)6442450944 )
-    
+
 For example, 12 Gigs plus 512 Megs is 12.5 Gigs:
 
     kalk> (12g + 512m) / 1g
@@ -69,6 +69,20 @@ change the value of `a` and ask to evaluate `c` again:
     kalk> a = 200
 	kalk> c
 	2 ( (int)2 (long)2 )
+
+kalk understands program arguments, which can be used to "preload" an
+expression before going into interactive mode:
+
+    # As if 1 + 3 were typed as the first input
+    $ kalk 1 + 3
+    4
+    kalk>
+    
+    # 1 * 100 + 2 is given as one argument here to prevent the shell
+    # from expanding the *
+    $ kalk "1 * 100 + 2"
+    102
+    kalk>
 
 kalk supports a variety of operators (multiplication, division, etc.) and
 unary or binary functions. Unary functions include, e.g., `sin(value)`;
