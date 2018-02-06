@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -49,38 +49,39 @@ extern int yydebug;
     NUMK = 259,
     NUMM = 260,
     NUMG = 261,
-    HEXNUM = 262,
-    POW = 263,
-    SQRT = 264,
-    SIN = 265,
-    ASIN = 266,
-    COS = 267,
-    ACOS = 268,
-    TAN = 269,
-    ATAN = 270,
-    FLOOR = 271,
-    CEIL = 272,
-    EXP = 273,
-    LOG = 274,
-    LOG10 = 275,
-    RINT = 276,
-    FMOD = 277,
-    VAR = 278,
-    HELP = 279,
-    QUIT = 280,
-    LIST = 281,
-    DEC = 282,
-    BIN = 283,
-    HEX = 284,
-    DEG = 285,
-    GRAD = 286,
-    RAD = 287,
-    E = 288,
-    PI = 289,
-    FACT = 290,
-    LSHIFT = 291,
-    RSHIFT = 292,
-    UMINUS = 293
+    NUMT = 262,
+    HEXNUM = 263,
+    POW = 264,
+    SQRT = 265,
+    SIN = 266,
+    ASIN = 267,
+    COS = 268,
+    ACOS = 269,
+    TAN = 270,
+    ATAN = 271,
+    FLOOR = 272,
+    CEIL = 273,
+    EXP = 274,
+    LOG = 275,
+    LOG10 = 276,
+    RINT = 277,
+    FMOD = 278,
+    VAR = 279,
+    HELP = 280,
+    QUIT = 281,
+    LIST = 282,
+    DEC = 283,
+    BIN = 284,
+    HEX = 285,
+    DEG = 286,
+    GRAD = 287,
+    RAD = 288,
+    E = 289,
+    PI = 290,
+    FACT = 291,
+    LSHIFT = 292,
+    RSHIFT = 293,
+    UMINUS = 294
   };
 #endif
 

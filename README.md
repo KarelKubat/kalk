@@ -39,7 +39,8 @@ bin (binary):
 	12 ( (int)12 (long)12 )
 
 Postfixing a number with `k` multiplies by 1024; postfixing with `m`
-multiplies by 1024*1024; postfixing by `g` multiplies by 1024*1024*1024:
+multiplies by 1024*1024; postfixing by `g` multiplies by 1024*1024*1024. 
+There is also the postfix `t` for tera:
 
     kalk> a=4k
     4096 ( (int)4096 (long)4096 )

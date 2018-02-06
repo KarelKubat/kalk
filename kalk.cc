@@ -49,9 +49,10 @@ int main (int argc, char **argv) {
       }
     }
 
-    if (bufready)
+    if (bufready) {
       strcat(buf, "\n");
       preloaded_instructions = buf;
+    }
   }
 
 
