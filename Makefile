@@ -1,7 +1,7 @@
 # Makefile for kalk
 
 VER = 1.43
-BINDIR = "$$HOME/bin"
+BINDIR ?= "$$HOME/bin"
 
 foo:
 	@cat Makefile.help
